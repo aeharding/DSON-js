@@ -1,12 +1,12 @@
 /*
-    json2.js
+    DSON2.js
     2014-02-04
 
     Public Domain.
 
     NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
 
-    See http://www.JSON.org/js.html
+    See http://www.DSON.org/js.html
 
 
     This code should be minified before deployment.
@@ -16,10 +16,10 @@
     NOT CONTROL.
 
 
-    This file creates a global JSON object containing two methods: stringify
+    This file creates a global DSON object containing two methods: stringify
     and parse.
 
-        JSON.stringify(value, replacer, space)
+        DSON.stringify(value, replacer, space)
             value       any JavaScript value, usually an object or array.
 
             replacer    an optional parameter that determines how object
@@ -33,19 +33,19 @@
                         level. If it is a string (such as '\t' or '&nbsp;'),
                         it contains the characters used to indent at each level.
 
-            This method produces a JSON text from a JavaScript value.
+            This method produces a DSON text from a JavaScript value.
 
-            When an object value is found, if the object contains a toJSON
-            method, its toJSON method will be called and the result will be
-            stringified. A toJSON method does not serialize: it returns the
+            When an object value is found, if the object contains a toDSON
+            method, its toDSON method will be called and the result will be
+            stringified. A toDSON method does not serialize: it returns the
             value represented by the name/value pair that should be serialized,
-            or undefined if nothing should be serialized. The toJSON method
+            or undefined if nothing should be serialized. The toDSON method
             will be passed the key associated with the value, and this will be
             bound to the value
 
             For example, this would serialize Dates as ISO strings.
 
-                Date.prototype.toJSON = function (key) {
+                Date.prototype.toDSON = function (key) {
                     function f(n) {
                         // Format integers to have at least two digits.
                         return n < 10 ? '0' + n : n;
@@ -70,11 +70,11 @@
             such that only members with keys listed in the replacer array are
             stringified.
 
-            Values that do not have JSON representations, such as undefined or
+            Values that do not have DSON representations, such as undefined or
             functions, will not be serialized. Such values in objects will be
             dropped; in arrays they will be replaced with null. You can use
-            a replacer function to replace those with JSON values.
-            JSON.stringify(undefined) returns undefined.
+            a replacer function to replace those with DSON values.
+            DSON.stringify(undefined) returns undefined.
 
             The optional space parameter produces a stringification of the
             value that is filled with line breaks and indentation to make it
@@ -86,22 +86,22 @@
 
             Example:
 
-            text = JSON.stringify(['e', {pluribus: 'unum'}]);
+            text = DSON.stringify(['e', {pluribus: 'unum'}]);
             // text is '["e",{"pluribus":"unum"}]'
 
 
-            text = JSON.stringify(['e', {pluribus: 'unum'}], null, '\t');
+            text = DSON.stringify(['e', {pluribus: 'unum'}], null, '\t');
             // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
 
-            text = JSON.stringify([new Date()], function (key, value) {
+            text = DSON.stringify([new Date()], function (key, value) {
                 return this[key] instanceof Date ?
                     'Date(' + this[key] + ')' : value;
             });
             // text is '["Date(---current time---)"]'
 
 
-        JSON.parse(text, reviver)
-            This method parses a JSON text to produce an object or array.
+        DSON.parse(text, reviver)
+            This method parses a DSON text to produce an object or array.
             It can throw a SyntaxError exception.
 
             The optional reviver parameter is a function that can filter and
@@ -115,7 +115,7 @@
             // Parse the text. Values that look like ISO date strings will
             // be converted to Date objects.
 
-            myData = JSON.parse(text, function (key, value) {
+            myData = DSON.parse(text, function (key, value) {
                 var a;
                 if (typeof value === 'string') {
                     a =
@@ -128,7 +128,7 @@
                 return value;
             });
 
-            myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
+            myData = DSON.parse('["Date(09/09/2001)"]', function (key, value) {
                 var d;
                 if (typeof value === 'string' &&
                         value.slice(0, 5) === 'Date(' &&
@@ -148,19 +148,19 @@
 
 /*jslint evil: true, regexp: true */
 
-/*members "", "\b", "\t", "\n", "\f", "\r", "\"", JSON, "\\", apply,
+/*members "", "\b", "\t", "\n", "\f", "\r", "\"", DSON, "\\", apply,
     call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
     getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
     lastIndex, length, parse, prototype, push, replace, slice, stringify,
-    test, toJSON, toString, valueOf
+    test, toDSON, toString, valueOf
 */
 
 
-// Create a JSON object only if one does not already exist. We create the
+// Create a DSON object only if one does not already exist. We create the
 // methods in a closure to avoid creating global variables.
 
-if (typeof JSON !== 'object') {
-    JSON = {};
+if (typeof DSON !== 'object') {
+    DSON = {};
 }
 
 (function () {
@@ -171,9 +171,9 @@ if (typeof JSON !== 'object') {
         return n < 10 ? '0' + n : n;
     }
 
-    if (typeof Date.prototype.toJSON !== 'function') {
+    if (typeof Date.prototype.toDSON !== 'function') {
 
-        Date.prototype.toJSON = function () {
+        Date.prototype.toDSON = function () {
 
             return isFinite(this.valueOf())
                 ? this.getUTCFullYear()     + '-' +
@@ -185,9 +185,9 @@ if (typeof JSON !== 'object') {
                 : null;
         };
 
-        String.prototype.toJSON      =
-            Number.prototype.toJSON  =
-            Boolean.prototype.toJSON = function () {
+        String.prototype.toDSON      =
+            Number.prototype.toDSON  =
+            Boolean.prototype.toDSON = function () {
                 return this.valueOf();
             };
     }
@@ -229,11 +229,11 @@ if (typeof JSON !== 'object') {
             partial,
             value = holder[key];
 
-// If the value has a toJSON method, call it to obtain a replacement value.
+// If the value has a toDSON method, call it to obtain a replacement value.
 
         if (value && typeof value === 'object' &&
-                typeof value.toJSON === 'function') {
-            value = value.toJSON(key);
+                typeof value.toDSON === 'function') {
+            value = value.toDSON(key);
         }
 
 // If we were called with a replacer function, then call the replacer to
@@ -251,7 +251,7 @@ if (typeof JSON !== 'object') {
 
         case 'number':
 
-// JSON numbers must be finite. Encode non-finite numbers as null.
+// DSON numbers must be finite. Encode non-finite numbers as null.
 
             return isFinite(value) ? String(value) : 'null';
 
@@ -286,7 +286,7 @@ if (typeof JSON !== 'object') {
             if (Object.prototype.toString.apply(value) === '[object Array]') {
 
 // The value is an array. Stringify every element. Use null as a placeholder
-// for non-JSON values.
+// for non-DSON values.
 
                 length = value.length;
                 for (i = 0; i < length; i += 1) {
@@ -297,10 +297,10 @@ if (typeof JSON !== 'object') {
 // brackets.
 
                 v = partial.length === 0
-                    ? '[]'
+                    ? 'so many'
                     : gap
-                    ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
-                    : '[' + partial.join(',') + ']';
+                    ? 'so\n' + gap + partial.join('next\n' + gap) + '\n' + mind + 'many'
+                    : 'so' + partial.join('next') + 'many';
                 gap = mind;
                 return v;
             }
@@ -314,7 +314,7 @@ if (typeof JSON !== 'object') {
                         k = rep[i];
                         v = str(k, value);
                         if (v) {
-                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                            partial.push(quote(k) + (gap ? 'is ' : 'is') + v);
                         }
                     }
                 }
@@ -326,7 +326,7 @@ if (typeof JSON !== 'object') {
                     if (Object.prototype.hasOwnProperty.call(value, k)) {
                         v = str(k, value);
                         if (v) {
-                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                            partial.push(quote(k) + (gap ? 'is ' : 'is') + v);
                         }
                     }
                 }
@@ -336,18 +336,18 @@ if (typeof JSON !== 'object') {
 // and wrap them in braces.
 
             v = partial.length === 0
-                ? '{}'
+                ? 'such wow'
                 : gap
-                ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
-                : '{' + partial.join(',') + '}';
+                ? 'such\n' + gap + partial.join('next\n' + gap) + '\n' + mind + 'wow'
+                : 'such' + partial.join('next') + 'wow';
             gap = mind;
             return v;
         }
     }
 
-// If the JSON object does not yet have a stringify method, give it one.
+// If the DSON object does not yet have a stringify method, give it one.
 
-    if (typeof JSON.stringify !== 'function') {
+    if (typeof DSON.stringify !== 'function') {
         escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
         meta = {    // table of character substitutions
             '\b': '\\b',
@@ -358,10 +358,10 @@ if (typeof JSON !== 'object') {
             '"' : '\\"',
             '\\': '\\\\'
         };
-        JSON.stringify = function (value, replacer, space) {
+        DSON.stringify = function (value, replacer, space) {
 
 // The stringify method takes a value and an optional replacer, and an optional
-// space parameter, and returns a JSON text. The replacer can be a function
+// space parameter, and returns a DSON text. The replacer can be a function
 // that can replace values, or an array of strings that will select the keys.
 // A default replacer method can be provided. Use of the space parameter can
 // produce text that is more easily readable.
@@ -391,7 +391,7 @@ if (typeof JSON !== 'object') {
             if (replacer && typeof replacer !== 'function' &&
                     (typeof replacer !== 'object' ||
                     typeof replacer.length !== 'number')) {
-                throw new Error('JSON.stringify');
+                throw new Error('DSON.stringify');
             }
 
 // Make a fake root object containing our value under the key of ''.
@@ -402,14 +402,14 @@ if (typeof JSON !== 'object') {
     }
 
 
-// If the JSON object does not yet have a parse method, give it one.
+// If the DSON object does not yet have a parse method, give it one.
 
-    if (typeof JSON.parse !== 'function') {
+    if (typeof DSON.parse !== 'function') {
         cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-        JSON.parse = function (text, reviver) {
+        DSON.parse = function (text, reviver) {
 
 // The parse method takes a text and an optional reviver function, and returns
-// a JavaScript value if the text is a valid JSON text.
+// a JavaScript value if the text is a valid DSON text.
 
             var j;
 
@@ -449,13 +449,13 @@ if (typeof JSON !== 'object') {
             }
 
 // In the second stage, we run the text against regular expressions that look
-// for non-JSON patterns. We are especially concerned with '()' and 'new'
+// for non-DSON patterns. We are especially concerned with '()' and 'new'
 // because they can cause invocation, and '=' because it can cause mutation.
 // But just to be safe, we want to reject all unexpected forms.
 
 // We split the second stage into 4 regexp operations in order to work around
 // crippling inefficiencies in IE's and Safari's regexp engines. First we
-// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
+// replace the DSON backslash pairs with '@' (a non-DSON character). Second, we
 // replace all simple value tokens with ']' characters. Third, we delete all
 // open brackets that follow a colon or comma or that begin the text. Finally,
 // we look to see that the remaining characters are only whitespace or ']' or
@@ -481,9 +481,9 @@ if (typeof JSON !== 'object') {
                     : j;
             }
 
-// If the text is not JSON parseable, then a SyntaxError is thrown.
+// If the text is not DSON parseable, then a SyntaxError is thrown.
 
-            throw new SyntaxError('JSON.parse');
+            throw new SyntaxError('DSON.parse');
         };
     }
 }());
